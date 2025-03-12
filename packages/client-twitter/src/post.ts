@@ -30,7 +30,8 @@ import {
 } from "discord.js";
 import type { State } from "@elizaos/core";
 import type { ActionResponse } from "@elizaos/core";
-import { MediaData } from "./types.ts";
+import { MediaData, TaskData } from "./types.ts";
+import { getTemplateByService } from "./templates/index.ts";
 
 const MAX_TIMELINES_TO_FETCH = 15;
 
@@ -132,7 +133,7 @@ export class TwitterPostClient {
             `- Action Interval: ${this.client.twitterConfig.ACTION_INTERVAL} minutes`
         );
         elizaLogger.log(
-            `- Post Immediately: ${
+            `- Post Immediately: ${ 
                 this.client.twitterConfig.POST_IMMEDIATELY
                     ? "enabled"
                     : "disabled"
@@ -447,7 +448,7 @@ export class TwitterPostClient {
         rawTweetContent: string,
         twitterUsername: string,
         mediaData?: MediaData[]
-    ) {
+    ): Promise<Tweet> {
         try {
             elizaLogger.log(`Posting new tweet:\n`);
 
@@ -482,6 +483,8 @@ export class TwitterPostClient {
                 roomId,
                 rawTweetContent
             );
+
+            return tweet;
         } catch (error) {
             elizaLogger.error("Error sending tweet:", error);
         }
@@ -490,9 +493,11 @@ export class TwitterPostClient {
     /**
      * Generates and posts a new tweet. If isDryRun is true, only logs what would have been posted.
      */
-    async generateNewTweet() {
+    async generateNewTweet(): Promise<Tweet | string> {
         elizaLogger.log("Generating new tweet");
 
+        // const { service } = task
+        // const serviceTemplate = getTemplate(service)
         try {
             const roomId = stringToUuid(
                 "twitter_generate_room-" + this.client.profile.username
@@ -596,7 +601,7 @@ export class TwitterPostClient {
                 elizaLogger.info(
                     `Dry run: would have posted tweet: ${tweetTextForPosting}`
                 );
-                return;
+                return tweetTextForPosting;
             }
 
             try {
@@ -615,7 +620,7 @@ export class TwitterPostClient {
                     elizaLogger.log(
                         `Posting new tweet:\n ${tweetTextForPosting}`
                     );
-                    this.postTweet(
+                    const tweet = await this.postTweet(
                         this.runtime,
                         this.client,
                         tweetTextForPosting,
@@ -624,6 +629,7 @@ export class TwitterPostClient {
                         this.twitterUsername,
                         mediaData
                     );
+                    return tweet;
                 }
             } catch (error) {
                 elizaLogger.error("Error sending tweet:", error);

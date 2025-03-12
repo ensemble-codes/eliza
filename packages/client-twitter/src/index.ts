@@ -5,6 +5,7 @@ import { TwitterInteractionClient } from "./interactions.ts";
 import { TwitterPostClient } from "./post.ts";
 import { TwitterSearchClient } from "./search.ts";
 import { TwitterSpaceClient } from "./spaces.ts";
+import { getTemplateByService } from "./templates/index.ts";
 
 /**
  * A manager that orchestrates all specialized Twitter logic:
@@ -45,6 +46,19 @@ class TwitterManager {
         if (twitterConfig.TWITTER_SPACES_ENABLE) {
             this.space = new TwitterSpaceClient(this.client, runtime);
         }
+    }
+
+    setTemplateByService(serviceName: string, template: string, topic: string) {
+        // const template = getTemplateByService(serviceName);
+        console.log(`Setting template for ${serviceName}`);
+        if (this.post.runtime.character.templates) {
+            this.post.runtime.character.templates.twitterPostTemplate  = template;
+        } else {
+            this.post.runtime.character.templates = {
+                twitterPostTemplate: template,
+            };
+        }
+        this.post.runtime.character.topics = [topic];
     }
 }
 
