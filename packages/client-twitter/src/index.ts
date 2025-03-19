@@ -58,7 +58,7 @@ class TwitterManager {
                 twitterPostTemplate: template,
             };
         }
-        this.post.runtime.character.topics = [topic];
+        // this.post.runtime.character.topics = [topic];
     }
 }
 

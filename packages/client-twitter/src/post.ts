@@ -493,7 +493,7 @@ export class TwitterPostClient {
     /**
      * Generates and posts a new tweet. If isDryRun is true, only logs what would have been posted.
      */
-    async generateNewTweet(): Promise<Tweet | string> {
+    async generateNewTweet(additionalKeys?: { [key: string]: unknown }): Promise<Tweet | string> {
         elizaLogger.log("Generating new tweet");
 
         // const { service } = task
@@ -523,7 +523,8 @@ export class TwitterPostClient {
                 },
                 {
                     twitterUserName: this.client.profile.username,
-                    maxTweetLength,
+                    maxTweetLength, 
+                    ...additionalKeys,
                 }
             );
 
